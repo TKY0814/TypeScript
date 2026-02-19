@@ -1,21 +1,76 @@
-# ボード型TODOアプリ（フロントエンド）
+# ボード型TODOアプリ
 
 要件定義（要件定義.md）・設計（design.md）に基づく MVP 実装です。
 
 ## 技術スタック
 
+### フロントエンド
 - React 18 + TypeScript
 - Zustand（状態管理）
 - @dnd-kit（ドラッグ＆ドロップ）
 - Vite
+- react-router-dom
+
+### バックエンド
+- Node.js + TypeScript
+- Express
+- PostgreSQL
 
 ## セットアップ・起動
-Node.js が未インストールの場合は、公式サイトから LTS 版をインストールしてください：
-https://nodejs.org/
+
+### 1. PostgreSQL のセットアップ
+
+PostgreSQL をインストールし、データベースを作成します：
 
 ```bash
+# PostgreSQL に接続
+psql -U postgres
+
+# データベース作成
+CREATE DATABASE board_todo_db;
+
+# マイグレーション実行
+\c board_todo_db
+\i server/migrations/001_create_boards.sql
+```
+
+### 2. バックエンドサーバーの起動
+
+```bash
+cd server
+npm install
+
+# .env ファイルを作成（.env.example をコピー）
+cp .env.example .env
+# .env を編集して DATABASE_URL を設定
+
+npm run dev
+```
+
+サーバーは `http://localhost:3001` で起動します。
+
+### 3. フロントエンドの起動
+
+```bash
+# プロジェクトルートで
 npm install
 npm run dev
+```
+
+フロントエンドは `http://localhost:5173` で起動します。
+
+### 環境変数
+
+**server/.env**
+```
+DATABASE_URL=postgres://user:password@localhost:5432/board_todo_db
+PORT=3001
+CORS_ORIGIN=http://localhost:5173
+```
+
+**フロントエンド（.env.local または vite.config.ts）**
+```
+VITE_API_URL=http://localhost:3001
 ```
 
 ## 実装内容
@@ -38,4 +93,4 @@ npm run dev
 - **ドラッグ**: カードをドラッグして位置変更
 - **パン**: ボードの空白部分をドラッグ
 - **ズーム**: ツールバーの − / + / 100%
-- **永続化**: 操作のたびに localStorage に自動保存
+- **永続化**: 操作のたびに PostgreSQL（API経由）に自動保存

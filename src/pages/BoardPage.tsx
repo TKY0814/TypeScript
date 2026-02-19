@@ -28,7 +28,9 @@ export function BoardPage() {
   useThemeEffect();
 
   useEffect(() => {
-    loadFromStorage();
+    (async () => {
+      await loadFromStorage();
+    })();
   }, [loadFromStorage]);
 
   return (

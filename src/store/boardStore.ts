@@ -1,6 +1,6 @@
 /**
  * Zustand ストア（design.md 1-6 StoreState 準拠）
- * 永続化は present の BoardState を localStorage へ保存。
+ * 永続化は present の BoardState を PostgreSQL（API経由）へ保存。
  * 履歴に積むのはカード操作（add/update/move/delete）のみ。zoom/offset は履歴に積まず view のみ更新。
  *
  * 追加要件: きらきらエフェクト用に UiState を拡張
@@ -13,7 +13,7 @@ import * as history from "@/lib/history";
 import * as boardState from "@/lib/boardState";
 import { createCard } from "@/lib/cardFactory";
 
-const STORAGE_KEY = "board-todo-app-state";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 const initialBoardState: BoardState = {
   cards: [],
@@ -112,11 +112,14 @@ export const useBoardStore = create<StoreState>((set, get) => ({
     get().saveToStorage();
   },
 
-  loadFromStorage: () => {
+  loadFromStorage: async () => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as BoardState;
+      const response = await fetch(`${API_BASE_URL}/api/board`);
+      if (!response.ok) {
+        console.error("Failed to load board state:", response.statusText);
+        return;
+      }
+      const parsed = (await response.json()) as BoardState;
       if (parsed?.cards && Array.isArray(parsed.cards)) {
         set({
           past: [],
@@ -129,16 +132,23 @@ export const useBoardStore = create<StoreState>((set, get) => ({
           future: [],
         });
       }
-    } catch {
-      // ignore invalid storage
+    } catch (error) {
+      console.error("Error loading board state:", error);
     }
   },
 
-  saveToStorage: () => {
+  saveToStorage: async () => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(get().present));
-    } catch {
-      // ignore quota etc.
+      const response = await fetch(`${API_BASE_URL}/api/board`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(get().present),
+      });
+      if (!response.ok) {
+        console.error("Failed to save board state:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error saving board state:", error);
     }
   },
 
