@@ -10,6 +10,8 @@
 - Vite
 
 ## セットアップ・起動
+Node.js が未インストールの場合は、公式サイトから LTS 版をインストールしてください：
+https://nodejs.org/
 
 ```bash
 npm install

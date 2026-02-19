@@ -1,7 +1,8 @@
 /**
- * ツールバー（design.md 2-4）：カード追加、Undo/Redo、ズーム、テーマ
+ * ツールバー（design.md 2-4）：ホームに戻る、カード追加、Undo/Redo、ズーム、テーマ
  */
 
+import { Link } from "react-router-dom";
 import { useBoardStore } from "@/store/boardStore";
 import { canUndo, canRedo } from "@/lib/history";
 
@@ -46,6 +47,29 @@ export function Toolbar() {
         flexWrap: "wrap",
       }}
     >
+      <Link
+        to="/"
+        style={{
+          padding: "6px 12px",
+          borderRadius: 6,
+          background: "rgba(255, 255, 255, 0.94)",
+          color: "var(--text)",
+          textDecoration: "none",
+          fontSize: "inherit",
+          border: "1px solid var(--border)",
+          transition: "background 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.79)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.74)";
+        }}
+        title="ホームに戻る"
+      >
+        ホームに戻る
+      </Link>
+      <span style={{ marginLeft: 8, color: "var(--text-muted)" }}>|</span>
       <button type="button" onClick={() => addCard()} title="カード追加 (Enter)">
         カード追加
       </button>

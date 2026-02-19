@@ -49,3 +49,66 @@ textarea {
 .board-page {
   touch-action: none;
 }
+
+/* きらきらエフェクト: カード追加時・ドラッグ中に周囲に光の粒を表示 */
+.card {
+  position: relative;
+}
+
+.card--sparkle::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 16px;
+  pointer-events: none;
+  animation: sparkle-once 0.8s ease-out forwards;
+}
+
+.card--sparkle.is-dragging::before {
+  animation: sparkle-loop 0.8s ease-in-out infinite;
+}
+
+@keyframes sparkle-once {
+  0% {
+    box-shadow: none;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    box-shadow:
+      0 0 6px 3px var(--card-sparkle-color),
+      -8px -6px 4px 2px var(--card-sparkle-color),
+      8px -6px 4px 2px var(--card-sparkle-color),
+      -6px 8px 4px 2px var(--card-sparkle-color),
+      6px 8px 4px 2px var(--card-sparkle-color),
+      0 -10px 5px 2px var(--card-sparkle-color),
+      0 10px 5px 2px var(--card-sparkle-color),
+      -10px 0 5px 2px var(--card-sparkle-color),
+      10px 0 5px 2px var(--card-sparkle-color);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: none;
+  }
+}
+
+@keyframes sparkle-loop {
+  0%, 100% {
+    opacity: 0.6;
+    box-shadow:
+      0 0 4px 2px var(--card-sparkle-color),
+      -6px -4px 3px 1px var(--card-sparkle-color),
+      6px -4px 3px 1px var(--card-sparkle-color),
+      -4px 6px 3px 1px var(--card-sparkle-color),
+      4px 6px 3px 1px var(--card-sparkle-color);
+  }
+  50% {
+    opacity: 1;
+    box-shadow:
+      0 0 8px 4px var(--card-sparkle-color),
+      -8px -6px 4px 2px var(--card-sparkle-color),
+      8px -6px 4px 2px var(--card-sparkle-color),
+      -6px 8px 4px 2px var(--card-sparkle-color),
+      6px 8px 4px 2px var(--card-sparkle-color);
+  }
+}
