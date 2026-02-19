@@ -14,36 +14,21 @@
 ### バックエンド
 - Node.js + TypeScript
 - Express
-- PostgreSQL
+- SQLite（better-sqlite3）
 
 ## セットアップ・起動
 
-### 1. PostgreSQL のセットアップ
+### 1. SQLite（自動初期化）
 
-PostgreSQL をインストールし、データベースを作成します：
-
-```bash
-# PostgreSQL に接続
-psql -U postgres
-
-# データベース作成
-CREATE DATABASE board_todo_db;
-
-# マイグレーション実行
-\c board_todo_db
-\i server/migrations/001_create_boards.sql
-```
+SQLiteは初回起動時に自動的に `server/board.db` ファイルを作成します。
+- `cards` テーブル：カード情報
+- `board_config` テーブル：ボード設定（ズーム・オフセット）
 
 ### 2. バックエンドサーバーの起動
 
 ```bash
 cd server
 npm install
-
-# .env ファイルを作成（.env.example をコピー）
-cp .env.example .env
-# .env を編集して DATABASE_URL を設定
-
 npm run dev
 ```
 
@@ -57,24 +42,19 @@ npm install
 npm run dev
 ```
 
-フロントエンドは `http://localhost:5173` で起動します。
-
-### 環境変数
-
-**server/.env**
-```
-DATABASE_URL=postgres://user:password@localhost:5432/board_todo_db
-PORT=3001
-CORS_ORIGIN=http://localhost:5173
-```
-
-**フロントエンド（.env.local または vite.config.ts）**
-```
-VITE_API_URL=http://localhost:3001
-```
+フロントエンドはViteが割り当てたポートで起動します。コンソールにURLが表示されます。
 
 ## 実装内容
 
+### API エンドポイント
+- `GET /api/board` … ボード状態取得（カード一覧・ズーム・オフセット）
+- `PUT /api/board` … ボード状態保存
+- `GET /api/test` … SQLite接続テスト（ステータス確認用）
+
+### CORS設定
+開発環境ではすべてのオリジンを許可しています。`localhost` の任意のポートからのリクエストを受け入れます。
+
+### ファイル構成
 - **ストア** `src/store/boardStore.ts` … StoreState（履歴・UI・永続化）
 - **履歴** `src/lib/history.ts` … Undo/Redo 用純粋関数（テスト用に分離）
 - **BoardState 更新** `src/lib/boardState.ts` … カード追加・更新・移動・削除の不変更新
@@ -84,6 +64,7 @@ VITE_API_URL=http://localhost:3001
   - `Toolbar` … カード追加 / Undo / Redo / ズーム / テーマ
   - `Board` … DndContext、パン・ズーム、ボード上ダブルクリックでカード追加
   - `Card` … ドラッグ、インライン編集、削除ボタン
+  - `TestPage` … SQLite接続テスト、簡易CRUD操作（テスト用）
 
 ## 操作
 

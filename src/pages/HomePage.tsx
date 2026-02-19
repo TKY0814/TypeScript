@@ -22,20 +22,37 @@ export function HomePage() {
         アイデアメモやタスクを付箋のように自由に配置できるボードです。
         カードの追加・編集・ドラッグ、ズーム・パン、Undo/Redoに対応しています。
       </p>
-      <Link
-        to="/board"
-        style={{
-          display: "inline-block",
-          padding: "12px 24px",
-          background: "#1976d2",
-          color: "#fff",
-          borderRadius: 8,
-          textDecoration: "none",
-          fontWeight: "bold",
-        }}
-      >
-        ボードを開く
-      </Link>
+      <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+        <Link
+          to="/board"
+          style={{
+            display: "inline-block",
+            padding: "12px 24px",
+            background: "#1976d2",
+            color: "#fff",
+            borderRadius: 8,
+            textDecoration: "none",
+            fontWeight: "bold",
+          }}
+        >
+          ボードを開く
+        </Link>
+        <Link
+          to="/test"
+          style={{
+            display: "inline-block",
+            padding: "12px 24px",
+            background: "#666",
+            color: "#fff",
+            borderRadius: 8,
+            textDecoration: "none",
+            fontWeight: "bold",
+            fontSize: "0.9rem",
+          }}
+        >
+          接続テスト
+        </Link>
+      </div>
     </div>
   );
 }

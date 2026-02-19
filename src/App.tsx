@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { HomePage } from "@/pages/HomePage";
 import { BoardPage } from "@/pages/BoardPage";
+import { TestPage } from "@/pages/TestPage";
 import { useBoardStore } from "@/store/boardStore";
 import { useEffect } from "react";
 
@@ -39,6 +40,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/board" element={<BoardPage />} />
+      <Route path="/test" element={<TestPage />} />
     </Routes>
   );
 }
