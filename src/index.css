@@ -1,0 +1,51 @@
+/* カンバン風・ダーク対応（要件定義 6） */
+:root {
+  --board-bg: #e0e0e0;
+  --toolbar-bg: #f5f5f5;
+  --border: #ddd;
+  --text: #333;
+  --text-muted: #666;
+}
+
+[data-theme="dark"] {
+  --board-bg: #2d2d2d;
+  --toolbar-bg: #1e1e1e;
+  --border: #444;
+  --text: #333;
+  --text-muted: #999;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--board-bg);
+}
+
+#root {
+  height: 100vh;
+  width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.board-page {
+  touch-action: none;
+}
