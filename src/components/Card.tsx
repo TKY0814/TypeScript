@@ -1,6 +1,7 @@
 /**
  * 1枚のカード表示とインライン編集（design.md 2-3）
  * クリックで選択、ダブルクリックで編集開始。dnd-kit の useDraggable でドラッグ可能。
+ * isNew / isDragging のとき card--sparkle クラスできらきらエフェクトを表示。
  */
 
 import { useRef, useEffect } from "react";
@@ -12,18 +13,23 @@ type CardProps = {
   card: CardType;
 };
 
+const SPARKLE_DURATION_MS = 800;
+
 export function Card({ card }: CardProps) {
   const {
     selectedCardId,
     editingCardId,
+    newCardIds,
     setSelectedCard,
     setEditingCard,
     updateCard,
     deleteCard,
+    clearNewCard,
   } = useBoardStore();
 
   const isSelected = selectedCardId === card.id;
   const isEditing = editingCardId === card.id;
+  const isNew = newCardIds.includes(card.id);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const detailRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,6 +43,17 @@ export function Card({ card }: CardProps) {
     if (isEditing && titleRef.current) titleRef.current.focus();
   }, [isEditing]);
 
+  // 追加直後のきらきらを SPARKLE_DURATION_MS で自動解除
+  useEffect(() => {
+    if (!isNew) return;
+    const t = setTimeout(() => clearNewCard(card.id), SPARKLE_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [isNew, card.id, clearNewCard]);
+
+  const showSparkle = isNew || isDragging;
+  const sparkleClass = showSparkle
+    ? `card card--sparkle${isDragging ? " is-dragging" : ""}`
+    : "card";
   const style: React.CSSProperties = {
     position: "absolute",
     left: card.x,
@@ -54,6 +71,7 @@ export function Card({ card }: CardProps) {
       ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
       : undefined,
     zIndex: isDragging ? 1000 : isSelected ? 10 : 1,
+    ["--card-sparkle-color" as string]: card.color,
   };
 
   const handleDoubleClick = () => {
@@ -103,6 +121,7 @@ export function Card({ card }: CardProps) {
     <div
       ref={setNodeRef}
       data-draggable
+      className={sparkleClass}
       style={style}
       {...(!isEditing ? listeners : {})}
       {...attributes}

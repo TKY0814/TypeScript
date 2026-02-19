@@ -2,6 +2,9 @@
  * Zustand ストア（design.md 1-6 StoreState 準拠）
  * 永続化は present の BoardState を localStorage へ保存。
  * 履歴に積むのはカード操作（add/update/move/delete）のみ。zoom/offset は履歴に積まず view のみ更新。
+ *
+ * 追加要件: きらきらエフェクト用に UiState を拡張
+ * - newCardIds: CardId[] … 追加直後のカードID一覧。Card で isNew 判定に使用し、約0.8秒後に clearNewCard で解除。
  */
 
 import { create } from "zustand";
@@ -39,6 +42,8 @@ export type StoreState = {
   setTheme: (theme: "light" | "dark" | "system") => void;
   setSelectedCard: (id: CardId | null) => void;
   setEditingCard: (id: CardId | null) => void;
+  newCardIds: CardId[];
+  clearNewCard: (id: CardId) => void;
 };
 
 export const useBoardStore = create<StoreState>((set, get) => ({
@@ -48,12 +53,18 @@ export const useBoardStore = create<StoreState>((set, get) => ({
   selectedCardId: null,
   editingCardId: null,
   theme: "system",
+  newCardIds: [],
 
   addCard: (partial) => {
     const card = createCard(partial);
     const next = boardState.addCardToState(get().present, card);
     set(history.pushHistory(get(), next));
+    set({ newCardIds: [...get().newCardIds, card.id] });
     get().saveToStorage();
+  },
+
+  clearNewCard: (id) => {
+    set({ newCardIds: get().newCardIds.filter((x) => x !== id) });
   },
 
   updateCard: (id, patch) => {
@@ -71,7 +82,11 @@ export const useBoardStore = create<StoreState>((set, get) => ({
   deleteCard: (id) => {
     const next = boardState.deleteCardFromState(get().present, id);
     set(history.pushHistory(get(), next));
-    set({ selectedCardId: get().selectedCardId === id ? null : get().selectedCardId, editingCardId: get().editingCardId === id ? null : get().editingCardId });
+    set({
+      selectedCardId: get().selectedCardId === id ? null : get().selectedCardId,
+      editingCardId: get().editingCardId === id ? null : get().editingCardId,
+      newCardIds: get().newCardIds.filter((x) => x !== id),
+    });
     get().saveToStorage();
   },
 
