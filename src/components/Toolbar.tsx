@@ -22,6 +22,8 @@ export function Toolbar() {
     setTheme,
     past,
     future,
+    lastSaveStatus,
+    lastSaveError,
   } = useBoardStore();
 
   const zoom = present.zoom;
@@ -114,6 +116,17 @@ export function Toolbar() {
         <option value="dark">ダーク</option>
         <option value="system">システム</option>
       </select>
+      <span style={{ marginLeft: "auto", color: "var(--text-muted)" }}>
+        {lastSaveStatus === "saving" && "⏳ 保存中..."}
+        {lastSaveStatus === "success" && (
+          <span style={{ color: "green" }}>✓ 保存しました</span>
+        )}
+        {lastSaveStatus === "error" && (
+          <span style={{ color: "red" }} title={lastSaveError || ""}>
+            ✗ 保存失敗: {lastSaveError}
+          </span>
+        )}
+      </span>
     </div>
   );
 }

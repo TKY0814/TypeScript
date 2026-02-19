@@ -44,6 +44,8 @@ export type StoreState = {
   setEditingCard: (id: CardId | null) => void;
   newCardIds: CardId[];
   clearNewCard: (id: CardId) => void;
+  lastSaveStatus: "idle" | "saving" | "success" | "error";
+  lastSaveError: string | null;
 };
 
 export const useBoardStore = create<StoreState>((set, get) => ({
@@ -54,13 +56,15 @@ export const useBoardStore = create<StoreState>((set, get) => ({
   editingCardId: null,
   theme: "system",
   newCardIds: [],
+  lastSaveStatus: "idle",
+  lastSaveError: null,
 
   addCard: (partial) => {
     const card = createCard(partial);
     const next = boardState.addCardToState(get().present, card);
     set(history.pushHistory(get(), next));
     set({ newCardIds: [...get().newCardIds, card.id] });
-    get().saveToStorage();
+    void get().saveToStorage(); // Promise チェーンを無視
   },
 
   clearNewCard: (id) => {
@@ -70,13 +74,13 @@ export const useBoardStore = create<StoreState>((set, get) => ({
   updateCard: (id, patch) => {
     const next = boardState.updateCardInState(get().present, id, patch);
     set(history.pushHistory(get(), next));
-    get().saveToStorage();
+    void get().saveToStorage();
   },
 
   moveCard: (id, x, y) => {
     const next = boardState.moveCardInState(get().present, id, x, y);
     set(history.pushHistory(get(), next));
-    get().saveToStorage();
+    void get().saveToStorage();
   },
 
   deleteCard: (id) => {
@@ -87,29 +91,29 @@ export const useBoardStore = create<StoreState>((set, get) => ({
       editingCardId: get().editingCardId === id ? null : get().editingCardId,
       newCardIds: get().newCardIds.filter((x) => x !== id),
     });
-    get().saveToStorage();
+    void get().saveToStorage();
   },
 
   setZoom: (zoom) => {
     set({ present: boardState.setZoomInState(get().present, zoom) });
-    get().saveToStorage();
+    void get().saveToStorage();
   },
 
   setOffset: (x, y) => {
     set({ present: boardState.setOffsetInState(get().present, x, y) });
-    get().saveToStorage();
+    void get().saveToStorage();
   },
 
   undo: () => {
     const next = history.undo(get());
     if (next) set(next);
-    get().saveToStorage();
+    void get().saveToStorage();
   },
 
   redo: () => {
     const next = history.redo(get());
     if (next) set(next);
-    get().saveToStorage();
+    void get().saveToStorage();
   },
 
   loadFromStorage: async () => {
@@ -139,16 +143,37 @@ export const useBoardStore = create<StoreState>((set, get) => ({
 
   saveToStorage: async () => {
     try {
+      set({ lastSaveStatus: "saving", lastSaveError: null });
+      console.log("[saveToStorage] API_BASE_URL:", API_BASE_URL);
+      console.log("[saveToStorage] Sending PUT request to:", `${API_BASE_URL}/api/board`);
+      const body = JSON.stringify(get().present);
+      console.log("[saveToStorage] Request body size:", body.length);
+      
       const response = await fetch(`${API_BASE_URL}/api/board`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(get().present),
+        body,
       });
+      
+      console.log("[saveToStorage] Response status:", response.status);
       if (!response.ok) {
-        console.error("Failed to save board state:", response.statusText);
+        const errorText = await response.text();
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
       }
+      const result = await response.json();
+      console.log("[saveToStorage] Server response:", result);
+      
+      set({ lastSaveStatus: "success", lastSaveError: null });
+      console.log("[saveToStorage] ✓ Save successful");
+      // 2秒後に idle に戻す
+      setTimeout(() => set({ lastSaveStatus: "idle" }), 2000);
     } catch (error) {
-      console.error("Error saving board state:", error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error(`[saveToStorage] ✗ Error: ${errorMsg}`);
+      console.error("[saveToStorage] Full error:", error);
+      set({ lastSaveStatus: "error", lastSaveError: errorMsg });
+      // 5秒後に idle に戻す
+      setTimeout(() => set({ lastSaveStatus: "idle" }), 5000);
     }
   },
 

@@ -1,0 +1,46 @@
+{
+  "cards": [
+    {
+      "id": "card-1771482198681-e1apje6",
+      "title": "",
+      "detail": "",
+      "color": "#ffeb3b",
+      "priority": "medium",
+      "x": 511,
+      "y": 63,
+      "width": 220,
+      "height": 140,
+      "createdAt": "2026-02-19T06:23:18.681Z",
+      "updatedAt": "2026-02-19T06:43:14.681Z"
+    },
+    {
+      "id": "card-1771482201000-46isbpj",
+      "title": "",
+      "detail": "",
+      "color": "#c8e6c9",
+      "priority": "medium",
+      "x": 411,
+      "y": 366,
+      "width": 220,
+      "height": 140,
+      "createdAt": "2026-02-19T06:23:21.000Z",
+      "updatedAt": "2026-02-19T06:43:15.784Z"
+    },
+    {
+      "id": "card-1771482202849-dog75ag",
+      "title": "",
+      "detail": "",
+      "color": "#bbdefb",
+      "priority": "medium",
+      "x": 59,
+      "y": 254,
+      "width": 220,
+      "height": 140,
+      "createdAt": "2026-02-19T06:23:22.849Z",
+      "updatedAt": "2026-02-19T06:23:25.160Z"
+    }
+  ],
+  "zoom": 1,
+  "offsetX": 0,
+  "offsetY": 0
+}
