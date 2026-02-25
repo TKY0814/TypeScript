@@ -10,12 +10,20 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import Database from "better-sqlite3";
+import fs from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const DB_PATH = path.join(__dirname, "..", "board.db");
+const DB_DIR = path.join(__dirname, "..", "db");
+const DB_PATH = path.join(DB_DIR, "board.db");
+
+// dbディレクトリを作成（存在しない場合）
+if (!fs.existsSync(DB_DIR)) {
+  fs.mkdirSync(DB_DIR, { recursive: true });
+  console.log(`[SQLite] ✓ Created directory: ${DB_DIR}`);
+}
 
 // CORS 設定：開発環境では全許可
 app.use(
